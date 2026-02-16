@@ -121,7 +121,7 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
   // Mercator — Pacific-centered (Japanese map style)
   const projection = useMemo(() => {
     return d3.geoMercator()
-      .center([0, 15])
+      .center([0, 30])
       .rotate([-150, 0]) // 150°E center — left: Europe/Africa, right: Americas
       .scale(dimensions.width / 6.8)
       .translate([dimensions.width / 2, dimensions.height / 2])

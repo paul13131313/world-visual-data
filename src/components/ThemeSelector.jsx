@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const SERIF = "'Playfair Display', Georgia, 'Times New Roman', serif";
 const MONO = "'JetBrains Mono', 'SF Mono', 'Fira Code', 'Courier New', monospace";
 
-export default function ThemeSelector({ activeIndex, onChange }) {
+export default function ThemeSelector({ activeIndex, onChange, isMobile }) {
   // Default: open the category of the active theme
   const activeTheme = THEMES[activeIndex];
   const [expandedCategory, setExpandedCategory] = useState(activeTheme.category);
@@ -30,8 +30,18 @@ export default function ThemeSelector({ activeIndex, onChange }) {
 
   return (
     <div style={{ marginBottom: 6 }}>
-      {/* Category + theme buttons in one row */}
-      <div style={{ display: "flex", gap: 3, marginBottom: 6, flexWrap: "wrap", alignItems: "center" }}>
+      {/* Category + theme buttons */}
+      <div style={{
+        display: "flex",
+        gap: 3,
+        marginBottom: 6,
+        flexWrap: isMobile ? "nowrap" : "wrap",
+        alignItems: "center",
+        overflowX: isMobile ? "auto" : "visible",
+        WebkitOverflowScrolling: "touch",
+        paddingBottom: isMobile ? 4 : 0,
+        scrollbarWidth: "none",
+      }}>
         {categoryOrder.map(cat => {
           const catInfo = THEME_CATEGORIES[cat];
           const isExpanded = expandedCategory === cat;
@@ -92,7 +102,7 @@ export default function ThemeSelector({ activeIndex, onChange }) {
               )}
 
               {/* Separator between categories */}
-              {cat !== "other" && (
+              {cat !== "other" && !isMobile && (
                 <div style={{
                   width: 1,
                   height: 16,
@@ -145,7 +155,7 @@ export default function ThemeSelector({ activeIndex, onChange }) {
             {activeTheme.year}年データ
           </span>
         )}
-        {activeTheme.help && (
+        {activeTheme.help && !isMobile && (
           <span style={{
             fontFamily: SERIF,
             fontSize: 10,

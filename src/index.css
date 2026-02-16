@@ -43,3 +43,8 @@ button {
 ::selection {
   background: rgba(0, 212, 255, 0.15);
 }
+
+/* Hide scrollbar for horizontal scroll areas on mobile */
+*::-webkit-scrollbar {
+  height: 0;
+}

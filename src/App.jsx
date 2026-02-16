@@ -15,6 +15,7 @@ export default function App() {
   const [hovered, setHovered] = useState(null);
   const [selected, setSelected] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const theme = THEMES[themeIndex];
   const activeCode = selected || hovered;
@@ -24,6 +25,12 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const handleThemeChange = (index) => {
     setThemeIndex(index);
     setSelected(null);
@@ -31,13 +38,13 @@ export default function App() {
 
   return (
     <div style={{
-      height: "100vh",
-      overflow: "hidden",
+      minHeight: "100vh",
+      overflow: isMobile ? "auto" : "hidden",
       position: "relative",
       display: "flex",
       flexDirection: "column",
     }}>
-      <ParticlesBg color={theme.color} />
+      {!isMobile && <ParticlesBg color={theme.color} />}
 
       {/* Ambient neon glow */}
       <div style={{
@@ -50,15 +57,16 @@ export default function App() {
         maxWidth: 1400,
         width: "100%",
         margin: "0 auto",
-        padding: "12px 20px 8px",
+        padding: isMobile ? "8px 10px 16px" : "12px 20px 8px",
         position: "relative",
         zIndex: 1,
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
-        overflow: "hidden",
+        minHeight: isMobile ? "auto" : "100vh",
+        height: isMobile ? "auto" : "100vh",
+        overflow: isMobile ? "visible" : "hidden",
       }}>
-        {/* ── Header (compact) ── */}
+        {/* ── Header ── */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -72,9 +80,11 @@ export default function App() {
             alignItems: "center",
             justifyContent: "space-between",
             flexShrink: 0,
+            flexWrap: "wrap",
+            gap: 4,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 10 }}>
             <div style={{
               width: 8, height: 8, borderRadius: "50%",
               background: theme.color,
@@ -83,47 +93,52 @@ export default function App() {
             }} />
             <h1 style={{
               fontFamily: SERIF,
-              fontSize: "clamp(18px, 2.5vw, 26px)",
+              fontSize: isMobile ? "16px" : "clamp(18px, 2.5vw, 26px)",
               fontWeight: 400, fontStyle: "italic", color: "#222",
               margin: 0, letterSpacing: "0.06em",
             }}>
               World Visual Data
             </h1>
-            <span style={{
-              fontFamily: MONO, fontSize: 9, color: theme.color,
-              letterSpacing: "0.18em", textTransform: "uppercase",
-              opacity: 0.55, transition: "color 0.6s", marginLeft: 6,
-            }}>
-              Interactive Global Dashboard
-            </span>
+            {!isMobile && (
+              <span style={{
+                fontFamily: MONO, fontSize: 9, color: theme.color,
+                letterSpacing: "0.18em", textTransform: "uppercase",
+                opacity: 0.55, transition: "color 0.6s", marginLeft: 6,
+              }}>
+                Interactive Global Dashboard
+              </span>
+            )}
           </div>
-          <span style={{
-            fontFamily: MONO, fontSize: 8, color: "#bbb", letterSpacing: "0.1em",
-          }}>
-            Source: World Bank, UNESCO, IEA, UNDP (2020–2024)
-          </span>
+          {!isMobile && (
+            <span style={{
+              fontFamily: MONO, fontSize: 8, color: "#bbb", letterSpacing: "0.1em",
+            }}>
+              Source: World Bank, UNESCO, IEA, UNDP (2020–2024)
+            </span>
+          )}
         </motion.header>
 
-        {/* ── Theme Selector (compact) ── */}
+        {/* ── Theme Selector ── */}
         <div style={{ flexShrink: 0 }}>
-          <ThemeSelector activeIndex={themeIndex} onChange={handleThemeChange} />
+          <ThemeSelector activeIndex={themeIndex} onChange={handleThemeChange} isMobile={isMobile} />
         </div>
 
-        {/* ── Main content: Map + Ranking side by side ── */}
+        {/* ── Main content ── */}
         <div style={{
           display: "flex",
-          gap: 14,
-          flex: 1,
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? 10 : 14,
+          flex: isMobile ? "none" : 1,
           minHeight: 0,
-          overflow: "hidden",
+          overflow: isMobile ? "visible" : "hidden",
         }}>
-          {/* Left: Map */}
+          {/* Map */}
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             style={{
-              flex: 1,
+              flex: isMobile ? "none" : 1,
               minWidth: 0,
               background: "rgba(255,255,255,0.45)",
               borderTop: `1px solid ${theme.color}15`,
@@ -146,7 +161,7 @@ export default function App() {
               transition: "background 0.8s",
             }} />
 
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ flex: isMobile ? "none" : 1, minHeight: 0 }}>
               <WorldMap
                 theme={theme}
                 hovered={hovered}
@@ -164,35 +179,37 @@ export default function App() {
               justifyContent: "space-between",
               marginTop: 4,
               paddingTop: 4,
-              padding: "4px 10px 0",
+              padding: isMobile ? "4px 6px 0" : "4px 10px 0",
               flexShrink: 0,
+              flexWrap: isMobile ? "wrap" : "nowrap",
+              gap: isMobile ? 4 : 0,
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontFamily: MONO, fontSize: 8, color: "#999", letterSpacing: "0.1em" }}>LOW</span>
                 <div style={{
-                  width: 80, height: 4, borderRadius: 2,
+                  width: isMobile ? 50 : 80, height: 4, borderRadius: 2,
                   background: `linear-gradient(90deg, ${theme.lo}, ${theme.color})`,
                   boxShadow: `0 0 6px ${theme.color}20`, transition: "all 0.6s",
                 }} />
                 <span style={{ fontFamily: MONO, fontSize: 8, color: "#999", letterSpacing: "0.1em" }}>HIGH</span>
               </div>
-              {/* Inline detail for hovered country */}
               {activeCode && (
                 <DetailPanel code={activeCode} activeThemeIndex={themeIndex} theme={theme} inline />
               )}
             </div>
           </motion.div>
 
-          {/* Right: Ranking */}
+          {/* Ranking */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: isMobile ? 0 : 20, y: isMobile ? 20 : 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
             style={{
-              width: 340,
+              width: isMobile ? "100%" : 340,
               flexShrink: 0,
-              overflow: "auto",
-              paddingRight: 4,
+              overflow: isMobile ? "visible" : "auto",
+              paddingRight: isMobile ? 0 : 4,
+              paddingBottom: isMobile ? 20 : 0,
             }}
           >
             <RankingBar
