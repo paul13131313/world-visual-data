@@ -229,8 +229,8 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
 
           // Wave animation delay based on centroid
           const centroid = pathGenerator.centroid(feat);
-          const delay = centroid[0] ? (centroid[0] / dimensions.width) * 0.8 : 0;
-          const entryProgress = Math.max(0, Math.min(1, (animationProgress - delay) / 0.4));
+          const delay = centroid[0] ? (centroid[0] / dimensions.width) * 0.5 : 0;
+          const entryProgress = Math.max(0, Math.min(1, (animationProgress - delay) / 0.5));
 
           // For visited theme: extra countries not in COUNTRIES data also get highlighted
           const isExtraVisited = isVisitedTheme && code && EXTRA_VISITED.has(code);
