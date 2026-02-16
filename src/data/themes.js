@@ -24,6 +24,7 @@ export const THEMES = [
   { key: "educationSpend", label: "教育費", unit: "%GDP", field: "educationSpend", category: "society", desc: "教育費（対GDP比）", help: "政府の教育支出がGDPに占める割合", color: "#5352ed", lo: "#12103a", hi: "#5352ed", year: 2022 },
   { key: "gini", label: "ジニ係数", unit: "", field: "gini", category: "society", desc: "ジニ係数（格差指標）", help: "所得の不平等度を0〜100で表す指標。0＝完全平等、100＝1人が全所得を独占。ローレンツ曲線と完全平等線の間の面積から算出。30以下は平等、40以上は格差大", color: "#ff7979", lo: "#2a1414", hi: "#ff7979", year: 2022 },
   { key: "happiness", label: "幸福度", unit: "", field: "happiness", category: "society", desc: "世界幸福度指数", help: "国連の世界幸福度報告書。GDP・健康寿命・社会的支援・自由度・寛容さ・腐敗の少なさの6指標から算出。0〜10のスケール", color: "#ffeaa7", lo: "#2a2800", hi: "#ffeaa7", year: 2024 },
+  { key: "suicideRate", label: "自殺率", unit: "/10万人", field: "suicideRate", category: "society", desc: "自殺率（10万人あたり）", help: "WHO推計による年齢標準化自殺率。人口10万人あたりの年間自殺者数", color: "#636e72", lo: "#1a1a1a", hi: "#636e72", year: 2019 },
 
   // ── 環境 ──
   { key: "co2", label: "CO₂排出量", unit: "Mt", field: "co2", category: "environment", desc: "CO₂排出量（百万トン）", color: "#ffaa00", lo: "#2a1a00", hi: "#ffaa00", year: 2022 },
@@ -41,4 +42,6 @@ export const THEMES = [
   { key: "military", label: "軍事費", unit: "B$", field: "military", category: "other", desc: "軍事費（10億ドル）", color: "#ff2d78", lo: "#3a0a1e", hi: "#ff2d78", year: 2023 },
   { key: "heritage", label: "世界遺産", unit: "件", field: "heritage", category: "other", desc: "ユネスコ世界遺産数", color: "#c850ff", lo: "#1e0a3a", hi: "#c850ff", year: 2024 },
   { key: "tourists", label: "観光客数", unit: "百万人", field: "tourists", category: "other", desc: "国際観光客数", color: "#fd79a8", lo: "#2a0a1a", hi: "#fd79a8", year: 2023 },
+  { key: "favorites", label: "好きな国", unit: "位", field: "favorites", category: "other", desc: "制作者の好きな国Top10", help: "個人的に好きな国ランキング。旅の思い出と文化への敬意を込めて", color: "#ff6b6b", lo: "#2a0a0a", hi: "#ff6b6b", isFavorites: true },
+  { key: "visited", label: "訪問済み", unit: "", field: "visited", category: "other", desc: "制作者が行ったことのある国", help: "33ヶ国訪問（データ外: 台湾・香港・マカオ・カンボジア・ネパール・カザフスタン・ウズベキスタン・アイスランド・オーストリア・タンザニア・グアテマラ）", color: "#f39c12", lo: "#1a1a1a", hi: "#f39c12", isVisited: true },
 ];

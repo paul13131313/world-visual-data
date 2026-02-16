@@ -5,7 +5,15 @@ import { COUNTRIES, COUNTRY_CODES } from "../data/countries";
 const SERIF = "'Playfair Display', Georgia, 'Times New Roman', serif";
 const MONO = "'JetBrains Mono', 'SF Mono', 'Fira Code', 'Courier New', monospace";
 
-function CountUpNumber({ value, unit, color, isHovered }) {
+// Extra favorites countries not in COUNTRIES data
+const EXTRA_FAVORITES_RANKING = [
+  { code: "KZ", nameJa: "カザフスタン", favorites: 10 },
+  { code: "IS", nameJa: "アイスランド", favorites: 5 },
+  { code: "TZ", nameJa: "タンザニア", favorites: 4 },
+  { code: "TW", nameJa: "台湾", favorites: 1 },
+];
+
+function CountUpNumber({ value, unit, color, isHovered, isFavorites }) {
   const [displayVal, setDisplayVal] = useState(0);
 
   useEffect(() => {
@@ -24,6 +32,23 @@ function CountUpNumber({ value, unit, color, isHovered }) {
     };
     requestAnimationFrame(animate);
   }, [value]);
+
+  if (isFavorites) {
+    return (
+      <span style={{
+        fontFamily: MONO,
+        fontSize: 10,
+        color: isHovered ? color : "#555",
+        width: 70,
+        textAlign: "right",
+        fontVariantNumeric: "tabular-nums",
+        transition: "color 0.3s",
+        textShadow: isHovered ? `0 0 8px ${color}25` : "none",
+      }}>
+        ♥
+      </span>
+    );
+  }
 
   const formatted = displayVal >= 1000
     ? displayVal.toLocaleString(undefined, { maximumFractionDigits: 0 })
@@ -47,6 +72,19 @@ function CountUpNumber({ value, unit, color, isHovered }) {
 
 export default function RankingBar({ theme, hovered, selected, onHover, onSelect }) {
   const { sorted, maxVal } = useMemo(() => {
+    if (theme.isFavorites) {
+      // Favorites: merge COUNTRIES data + extra countries
+      const entries = COUNTRY_CODES
+        .map(code => ({ code, ...COUNTRIES[code] }))
+        .filter(c => c.favorites !== undefined && c.favorites > 0);
+      // Add extra favorites
+      EXTRA_FAVORITES_RANKING.forEach(extra => {
+        entries.push(extra);
+      });
+      entries.sort((a, b) => b.favorites - a.favorites);
+      const max = Math.max(...entries.map(c => c.favorites));
+      return { sorted: entries.slice(0, 10), maxVal: max };
+    }
     const entries = COUNTRY_CODES
       .map(code => ({ code, ...COUNTRIES[code] }))
       .filter(c => c[theme.field] !== undefined);
@@ -78,7 +116,7 @@ export default function RankingBar({ theme, hovered, selected, onHover, onSelect
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <AnimatePresence mode="popLayout">
           {sorted.map((c, i) => {
-            const val = Math.abs(c[theme.field]);
+            const val = theme.isFavorites ? c.favorites : Math.abs(c[theme.field]);
             const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
             const isH = hovered === c.code || selected === c.code;
 
@@ -166,10 +204,11 @@ export default function RankingBar({ theme, hovered, selected, onHover, onSelect
                 </div>
 
                 <CountUpNumber
-                  value={c[theme.field]}
+                  value={theme.isFavorites ? c.favorites : c[theme.field]}
                   unit={theme.unit}
                   color={theme.color}
                   isHovered={isH}
+                  isFavorites={theme.isFavorites}
                 />
               </motion.div>
             );

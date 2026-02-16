@@ -4,6 +4,41 @@ import { feature } from "topojson-client";
 import worldData from "world-atlas/countries-110m.json";
 import { COUNTRIES } from "../data/countries";
 
+// Extra visited countries not in COUNTRIES data (ISO Alpha-2 codes)
+const EXTRA_VISITED = new Set([
+  "TW", // 台湾
+  "KH", // カンボジア
+  "NP", // ネパール
+  "KZ", // カザフスタン
+  "UZ", // ウズベキスタン
+  "IS", // アイスランド
+  "AT", // オーストリア
+  "TZ", // タンザニア
+  "GT", // グアテマラ
+]);
+
+// Extra favorites countries not in COUNTRIES data
+// Values = inverse rank (1位=10, 2位=9, ...)
+const EXTRA_FAVORITES = {
+  KZ: 10, // カザフスタン 1位
+  IS: 5,  // アイスランド 6位
+  TZ: 4,  // タンザニア 7位
+  TW: 1,  // 台湾 10位
+};
+
+// Names for countries not in COUNTRIES data (for tooltips)
+const EXTRA_COUNTRY_NAMES = {
+  TW: { name: "Taiwan", nameJa: "台湾" },
+  KH: { name: "Cambodia", nameJa: "カンボジア" },
+  NP: { name: "Nepal", nameJa: "ネパール" },
+  KZ: { name: "Kazakhstan", nameJa: "カザフスタン" },
+  UZ: { name: "Uzbekistan", nameJa: "ウズベキスタン" },
+  IS: { name: "Iceland", nameJa: "アイスランド" },
+  AT: { name: "Austria", nameJa: "オーストリア" },
+  TZ: { name: "Tanzania", nameJa: "タンザニア" },
+  GT: { name: "Guatemala", nameJa: "グアテマラ" },
+};
+
 // Known coordinates for small countries that are hard to find on the map
 // [longitude, latitude]
 const SMALL_COUNTRY_COORDS = {
@@ -186,6 +221,7 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
         {countries.features.map((feat, idx) => {
           const code = getCountryCode(feat);
           const countryData = code ? COUNTRIES[code] : null;
+          const isVisitedTheme = theme.isVisited;
           const val = countryData ? Math.abs(countryData[theme.field] ?? 0) : 0;
           const t = maxVal > 0 ? val / maxVal : 0;
           const isHovered = code === hovered;
@@ -197,9 +233,22 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
           const delay = centroid[0] ? (centroid[0] / dimensions.width) * 0.8 : 0;
           const entryProgress = Math.max(0, Math.min(1, (animationProgress - delay) / 0.4));
 
-          const fill = countryData
-            ? lerpColor(theme.lo, theme.hi, t * entryProgress)
-            : "#c8cad0";
+          // For visited theme: extra countries not in COUNTRIES data also get highlighted
+          const isExtraVisited = isVisitedTheme && code && EXTRA_VISITED.has(code);
+          // For favorites theme: extra countries not in COUNTRIES data
+          const isFavoritesTheme = theme.isFavorites;
+          const extraFavVal = isFavoritesTheme && code ? EXTRA_FAVORITES[code] : 0;
+
+          let fill;
+          if (isExtraVisited) {
+            fill = lerpColor(theme.lo, theme.hi, 1.0 * entryProgress);
+          } else if (extraFavVal > 0) {
+            fill = lerpColor(theme.lo, theme.hi, (extraFavVal / 10) * entryProgress);
+          } else if (countryData) {
+            fill = lerpColor(theme.lo, theme.hi, t * entryProgress);
+          } else {
+            fill = "#c8cad0";
+          }
 
           // Dimming: when a country is hovered/selected, fade others
           const hasFocus = hovered || selected;
@@ -208,7 +257,7 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
           // Check if this is a small country by path bounding box area
           const pathD = pathGenerator(feat);
           const isSmall = (() => {
-            if (!pathD || !code || !countryData) return false;
+            if (!pathD || !code || (!countryData && !isExtraVisited && !extraFavVal)) return false;
             const bounds = pathGenerator.bounds(feat);
             const bw = bounds[1][0] - bounds[0][0];
             const bh = bounds[1][1] - bounds[0][1];
@@ -224,15 +273,15 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
                 strokeWidth={0.3}
                 style={{
                   transition: "fill 0.4s ease",
-                  cursor: countryData ? "pointer" : "default",
+                  cursor: (countryData || isExtraVisited || extraFavVal > 0) ? "pointer" : "default",
                 }}
                 onMouseEnter={() => {
-                  if (code && countryData) onHover(code);
+                  if (code && (countryData || isExtraVisited || extraFavVal > 0)) onHover(code);
                 }}
                 onMouseLeave={() => onHover(null)}
                 onMouseMove={handleMouseMove}
                 onClick={() => {
-                  if (code && countryData) onSelect(code === selected ? null : code);
+                  if (code && (countryData || isExtraVisited || extraFavVal > 0)) onSelect(code === selected ? null : code);
                 }}
               />
               {/* Pulse ring for small countries when active */}
@@ -277,54 +326,61 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
       </svg>
 
       {/* Floating tooltip with Japanese name */}
-      {hovered && COUNTRIES[hovered] && (
-        <div
-          ref={tooltipRef}
-          style={{
-            position: "fixed",
-            padding: "8px 14px",
-            background: "rgba(30,32,40,0.95)",
-            border: `1px solid ${theme.color}50`,
-            borderRadius: 6,
-            boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 15px ${theme.color}15`,
-            pointerEvents: "none",
-            zIndex: 100,
-            backdropFilter: "blur(8px)",
-            maxWidth: 240,
-          }}
-        >
-          <div style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 13,
-            color: "#fff",
-            marginBottom: 3,
-            display: "flex",
-            alignItems: "baseline",
-            gap: 6,
-          }}>
-            <span style={{ fontWeight: 600 }}>{COUNTRIES[hovered].nameJa}</span>
-            <span style={{ fontSize: 10, color: "#888", fontStyle: "italic" }}>{COUNTRIES[hovered].name}</span>
+      {hovered && (COUNTRIES[hovered] || EXTRA_COUNTRY_NAMES[hovered]) && (() => {
+        const cData = COUNTRIES[hovered];
+        const extra = EXTRA_COUNTRY_NAMES[hovered];
+        const nameJa = cData ? cData.nameJa : extra.nameJa;
+        const nameEn = cData ? cData.name : extra.name;
+        const val = cData ? (cData[theme.field] ?? 0) : (EXTRA_FAVORITES[hovered] || (theme.isVisited ? 1 : 0));
+        return (
+          <div
+            ref={tooltipRef}
+            style={{
+              position: "fixed",
+              padding: "8px 14px",
+              background: "rgba(30,32,40,0.95)",
+              border: `1px solid ${theme.color}50`,
+              borderRadius: 6,
+              boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 15px ${theme.color}15`,
+              pointerEvents: "none",
+              zIndex: 100,
+              backdropFilter: "blur(8px)",
+              maxWidth: 240,
+            }}
+          >
+            <div style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 13,
+              color: "#fff",
+              marginBottom: 3,
+              display: "flex",
+              alignItems: "baseline",
+              gap: 6,
+            }}>
+              <span style={{ fontWeight: 600 }}>{nameJa}</span>
+              <span style={{ fontSize: 10, color: "#888", fontStyle: "italic" }}>{nameEn}</span>
+            </div>
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 16,
+              fontWeight: 700,
+              color: theme.color,
+              textShadow: `0 0 8px ${theme.color}40`,
+            }}>
+              {theme.isFavorites ? `${11 - val}位` : val.toLocaleString()}
+              {!theme.isFavorites && <span style={{ fontSize: 10, color: "#888", marginLeft: 4, fontWeight: 400 }}>{theme.unit}</span>}
+            </div>
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 9,
+              color: "#666",
+              marginTop: 2,
+            }}>
+              {theme.desc}
+            </div>
           </div>
-          <div style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 16,
-            fontWeight: 700,
-            color: theme.color,
-            textShadow: `0 0 8px ${theme.color}40`,
-          }}>
-            {(COUNTRIES[hovered][theme.field] ?? 0).toLocaleString()}
-            <span style={{ fontSize: 10, color: "#888", marginLeft: 4, fontWeight: 400 }}>{theme.unit}</span>
-          </div>
-          <div style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 9,
-            color: "#666",
-            marginTop: 2,
-          }}>
-            {theme.desc}
-          </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
