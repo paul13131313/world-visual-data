@@ -17,15 +17,6 @@ const EXTRA_VISITED = new Set([
   "GT", // グアテマラ
 ]);
 
-// Extra favorites countries not in COUNTRIES data
-// Values = inverse rank (1位=10, 2位=9, ...)
-const EXTRA_FAVORITES = {
-  KZ: 10, // カザフスタン 1位
-  IS: 5,  // アイスランド 6位
-  TZ: 4,  // タンザニア 7位
-  TW: 1,  // 台湾 10位
-};
-
 // Names for countries not in COUNTRIES data (for tooltips)
 const EXTRA_COUNTRY_NAMES = {
   TW: { name: "Taiwan", nameJa: "台湾" },
@@ -235,15 +226,10 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
 
           // For visited theme: extra countries not in COUNTRIES data also get highlighted
           const isExtraVisited = isVisitedTheme && code && EXTRA_VISITED.has(code);
-          // For favorites theme: extra countries not in COUNTRIES data
-          const isFavoritesTheme = theme.isFavorites;
-          const extraFavVal = isFavoritesTheme && code ? EXTRA_FAVORITES[code] : 0;
 
           let fill;
           if (isExtraVisited) {
             fill = lerpColor(theme.lo, theme.hi, 1.0 * entryProgress);
-          } else if (extraFavVal > 0) {
-            fill = lerpColor(theme.lo, theme.hi, (extraFavVal / 10) * entryProgress);
           } else if (countryData) {
             fill = lerpColor(theme.lo, theme.hi, t * entryProgress);
           } else {
@@ -257,7 +243,7 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
           // Check if this is a small country by path bounding box area
           const pathD = pathGenerator(feat);
           const isSmall = (() => {
-            if (!pathD || !code || (!countryData && !isExtraVisited && !extraFavVal)) return false;
+            if (!pathD || !code || (!countryData && !isExtraVisited)) return false;
             const bounds = pathGenerator.bounds(feat);
             const bw = bounds[1][0] - bounds[0][0];
             const bh = bounds[1][1] - bounds[0][1];
@@ -273,15 +259,15 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
                 strokeWidth={0.3}
                 style={{
                   transition: "fill 0.4s ease",
-                  cursor: (countryData || isExtraVisited || extraFavVal > 0) ? "pointer" : "default",
+                  cursor: (countryData || isExtraVisited) ? "pointer" : "default",
                 }}
                 onMouseEnter={() => {
-                  if (code && (countryData || isExtraVisited || extraFavVal > 0)) onHover(code);
+                  if (code && (countryData || isExtraVisited)) onHover(code);
                 }}
                 onMouseLeave={() => onHover(null)}
                 onMouseMove={handleMouseMove}
                 onClick={() => {
-                  if (code && (countryData || isExtraVisited || extraFavVal > 0)) onSelect(code === selected ? null : code);
+                  if (code && (countryData || isExtraVisited)) onSelect(code === selected ? null : code);
                 }}
               />
               {/* Pulse ring for small countries when active */}
@@ -331,7 +317,7 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
         const extra = EXTRA_COUNTRY_NAMES[hovered];
         const nameJa = cData ? cData.nameJa : extra.nameJa;
         const nameEn = cData ? cData.name : extra.name;
-        const val = cData ? (cData[theme.field] ?? 0) : (EXTRA_FAVORITES[hovered] || (theme.isVisited ? 1 : 0));
+        const val = cData ? (cData[theme.field] ?? 0) : 0;
         return (
           <div
             ref={tooltipRef}
@@ -360,16 +346,28 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
               <span style={{ fontWeight: 600 }}>{nameJa}</span>
               <span style={{ fontSize: 10, color: "#888", fontStyle: "italic" }}>{nameEn}</span>
             </div>
-            <div style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 16,
-              fontWeight: 700,
-              color: theme.color,
-              textShadow: `0 0 8px ${theme.color}40`,
-            }}>
-              {theme.isFavorites ? `${11 - val}位` : val.toLocaleString()}
-              {!theme.isFavorites && <span style={{ fontSize: 10, color: "#888", marginLeft: 4, fontWeight: 400 }}>{theme.unit}</span>}
-            </div>
+            {theme.isVisited ? (
+              <div style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 14,
+                fontWeight: 700,
+                color: theme.color,
+                textShadow: `0 0 8px ${theme.color}40`,
+              }}>
+                ✓ Visited
+              </div>
+            ) : (
+              <div style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 16,
+                fontWeight: 700,
+                color: theme.color,
+                textShadow: `0 0 8px ${theme.color}40`,
+              }}>
+                {val.toLocaleString()}
+                <span style={{ fontSize: 10, color: "#888", marginLeft: 4, fontWeight: 400 }}>{theme.unit}</span>
+              </div>
+            )}
             <div style={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 9,

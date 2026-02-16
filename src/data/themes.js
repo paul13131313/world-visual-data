@@ -42,6 +42,5 @@ export const THEMES = [
   { key: "military", label: "軍事費", unit: "B$", field: "military", category: "other", desc: "軍事費（10億ドル）", color: "#ff2d78", lo: "#3a0a1e", hi: "#ff2d78", year: 2023 },
   { key: "heritage", label: "世界遺産", unit: "件", field: "heritage", category: "other", desc: "ユネスコ世界遺産数", color: "#c850ff", lo: "#1e0a3a", hi: "#c850ff", year: 2024 },
   { key: "tourists", label: "観光客数", unit: "百万人", field: "tourists", category: "other", desc: "国際観光客数", color: "#fd79a8", lo: "#2a0a1a", hi: "#fd79a8", year: 2023 },
-  { key: "favorites", label: "好きな国", unit: "位", field: "favorites", category: "other", desc: "制作者の好きな国Top10", help: "個人的に好きな国ランキング。旅の思い出と文化への敬意を込めて", color: "#ff6b6b", lo: "#2a0a0a", hi: "#ff6b6b", isFavorites: true },
-  { key: "visited", label: "訪問済み", unit: "", field: "visited", category: "other", desc: "制作者が行ったことのある国", help: "33ヶ国訪問（データ外: 台湾・香港・マカオ・カンボジア・ネパール・カザフスタン・ウズベキスタン・アイスランド・オーストリア・タンザニア・グアテマラ）", color: "#f39c12", lo: "#1a1a1a", hi: "#f39c12", isVisited: true },
+  { key: "visited", label: "訪問済み", unit: "", field: "visited", category: "other", desc: "PAUL's VISITED", color: "#4da6ff", lo: "#1a2a3a", hi: "#4da6ff", isVisited: true },
 ];
