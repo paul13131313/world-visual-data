@@ -137,14 +137,16 @@ export default function ThemeSelector({ activeIndex, onChange, isMobile }) {
         }}>
           {activeTheme.desc}
         </span>
-        <span style={{
-          fontFamily: MONO,
-          fontSize: 9,
-          color: activeTheme.color,
-          opacity: 0.5,
-        }}>
-          [{activeTheme.unit}]
-        </span>
+        {activeTheme.unit && (
+          <span style={{
+            fontFamily: MONO,
+            fontSize: 9,
+            color: activeTheme.color,
+            opacity: 0.5,
+          }}>
+            [{activeTheme.unit}]
+          </span>
+        )}
         {activeTheme.year && (
           <span style={{
             fontFamily: MONO,

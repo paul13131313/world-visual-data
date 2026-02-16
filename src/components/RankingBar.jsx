@@ -5,21 +5,7 @@ import { COUNTRIES, COUNTRY_CODES } from "../data/countries";
 const SERIF = "'Playfair Display', Georgia, 'Times New Roman', serif";
 const MONO = "'JetBrains Mono', 'SF Mono', 'Fira Code', 'Courier New', monospace";
 
-// Favorites ranking for visited theme (includes extra countries not in COUNTRIES data)
-const FAVORITES_RANKING = [
-  { code: "KZ", nameJa: "カザフスタン", favorites: 10 },
-  { code: "FI", nameJa: "フィンランド", favorites: 9 },
-  { code: "CZ", nameJa: "チェコ", favorites: 8 },
-  { code: "GB", nameJa: "イギリス", favorites: 7 },
-  { code: "AR", nameJa: "アルゼンチン", favorites: 6 },
-  { code: "IS", nameJa: "アイスランド", favorites: 5 },
-  { code: "TZ", nameJa: "タンザニア", favorites: 4 },
-  { code: "TR", nameJa: "トルコ", favorites: 3 },
-  { code: "MX", nameJa: "メキシコ", favorites: 2 },
-  { code: "TW", nameJa: "台湾", favorites: 1 },
-];
-
-function CountUpNumber({ value, unit, color, isHovered, isVisitedTheme }) {
+function CountUpNumber({ value, unit, color, isHovered }) {
   const [displayVal, setDisplayVal] = useState(0);
 
   useEffect(() => {
@@ -38,23 +24,6 @@ function CountUpNumber({ value, unit, color, isHovered, isVisitedTheme }) {
     };
     requestAnimationFrame(animate);
   }, [value]);
-
-  if (isVisitedTheme) {
-    return (
-      <span style={{
-        fontFamily: MONO,
-        fontSize: 10,
-        color: isHovered ? color : "#555",
-        width: 70,
-        textAlign: "right",
-        fontVariantNumeric: "tabular-nums",
-        transition: "color 0.3s",
-        textShadow: isHovered ? `0 0 8px ${color}25` : "none",
-      }}>
-        ♥
-      </span>
-    );
-  }
 
   const formatted = displayVal >= 1000
     ? displayVal.toLocaleString(undefined, { maximumFractionDigits: 0 })
@@ -76,19 +45,14 @@ function CountUpNumber({ value, unit, color, isHovered, isVisitedTheme }) {
   );
 }
 
-export default function RankingBar({ theme, hovered, selected, onHover, onSelect, onOpenAllPhotos }) {
-  const { sorted, maxVal, isVisitedRanking } = useMemo(() => {
-    if (theme.isVisited) {
-      // Visited theme: show favorites ranking (hardcoded Top 10)
-      const max = Math.max(...FAVORITES_RANKING.map(c => c.favorites));
-      return { sorted: FAVORITES_RANKING, maxVal: max, isVisitedRanking: true };
-    }
+export default function RankingBar({ theme, hovered, selected, onHover, onSelect }) {
+  const { sorted, maxVal } = useMemo(() => {
     const entries = COUNTRY_CODES
       .map(code => ({ code, ...COUNTRIES[code] }))
       .filter(c => c[theme.field] !== undefined);
     entries.sort((a, b) => Math.abs(b[theme.field]) - Math.abs(a[theme.field]));
     const max = Math.max(...entries.map(c => Math.abs(c[theme.field])));
-    return { sorted: entries.slice(0, 10), maxVal: max, isVisitedRanking: false };
+    return { sorted: entries.slice(0, 10), maxVal: max };
   }, [theme]);
 
   return (
@@ -101,20 +65,20 @@ export default function RankingBar({ theme, hovered, selected, onHover, onSelect
         color: "#666",
         marginBottom: 10,
       }}>
-        {isVisitedRanking ? "Favorites —" : "Top 10 —"}{" "}
+        Top 10 —{" "}
         <span style={{
           color: theme.color,
           transition: "color 0.5s",
           textShadow: `0 0 8px ${theme.color}25`,
         }}>
-          {isVisitedRanking ? "好きな国" : theme.label}
+          {theme.label}
         </span>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <AnimatePresence mode="popLayout">
           {sorted.map((c, i) => {
-            const val = isVisitedRanking ? c.favorites : Math.abs(c[theme.field]);
+            const val = Math.abs(c[theme.field]);
             const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
             const isH = hovered === c.code || selected === c.code;
 
@@ -202,11 +166,10 @@ export default function RankingBar({ theme, hovered, selected, onHover, onSelect
                 </div>
 
                 <CountUpNumber
-                  value={isVisitedRanking ? c.favorites : c[theme.field]}
+                  value={c[theme.field]}
                   unit={theme.unit}
                   color={theme.color}
                   isHovered={isH}
-                  isVisitedTheme={isVisitedRanking}
                 />
               </motion.div>
             );
@@ -214,31 +177,6 @@ export default function RankingBar({ theme, hovered, selected, onHover, onSelect
         </AnimatePresence>
       </div>
 
-      {/* All Photos button for visited theme */}
-      {isVisitedRanking && onOpenAllPhotos && (
-        <button
-          onClick={onOpenAllPhotos}
-          style={{
-            marginTop: 14,
-            width: "100%",
-            padding: "8px 0",
-            background: "none",
-            border: `1px solid ${theme.color}30`,
-            borderRadius: 4,
-            color: theme.color,
-            fontFamily: MONO,
-            fontSize: 11,
-            letterSpacing: "0.08em",
-            cursor: "pointer",
-            transition: "all 0.3s",
-            opacity: 0.7,
-          }}
-          onMouseEnter={e => { e.target.style.opacity = "1"; e.target.style.borderColor = theme.color; }}
-          onMouseLeave={e => { e.target.style.opacity = "0.7"; e.target.style.borderColor = `${theme.color}30`; }}
-        >
-          All Photos →
-        </button>
-      )}
     </div>
   );
 }

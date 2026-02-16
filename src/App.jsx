@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { THEMES } from "./data/themes";
-import { PHOTOS } from "./data/photos";
 import WorldMap from "./components/WorldMap";
 import ThemeSelector from "./components/ThemeSelector";
 import DetailPanel from "./components/DetailPanel";
 import RankingBar from "./components/RankingBar";
+import PhotoPanel from "./components/PhotoPanel";
 import ParticlesBg from "./components/ParticlesBg";
-import PhotoModal from "./components/PhotoModal";
 
 const SERIF = "'Playfair Display', Georgia, 'Times New Roman', serif";
 const MONO = "'JetBrains Mono', 'SF Mono', 'Fira Code', 'Courier New', monospace";
@@ -18,7 +17,6 @@ export default function App() {
   const [selected, setSelected] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [photoCountry, setPhotoCountry] = useState(null);
 
   const theme = THEMES[themeIndex];
   const activeCode = selected || hovered;
@@ -37,22 +35,11 @@ export default function App() {
   const handleThemeChange = (index) => {
     setThemeIndex(index);
     setSelected(null);
-    setPhotoCountry(null);
   };
 
   const handleSelect = (code) => {
-    // If photo modal is open, close it first on any click
-    if (photoCountry) {
-      setPhotoCountry(null);
-      setSelected(null);
-      return;
-    }
     const newCode = code === selected ? null : code;
     setSelected(newCode);
-    // Open photo modal if visited theme and country has photos
-    if (newCode && theme.isVisited && PHOTOS[newCode]?.length > 0) {
-      setPhotoCountry(newCode);
-    }
   };
 
   return (
@@ -227,7 +214,7 @@ export default function App() {
             </div>
           </motion.div>
 
-          {/* Ranking */}
+          {/* Right panel: Ranking or Photo Gallery */}
           <motion.div
             initial={{ opacity: 0, x: isMobile ? 0 : 20, y: isMobile ? 20 : 0 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
@@ -235,29 +222,31 @@ export default function App() {
             style={{
               width: isMobile ? "100%" : 340,
               flexShrink: 0,
-              overflow: isMobile ? "visible" : "auto",
+              overflow: isMobile ? "visible" : "hidden",
               paddingRight: isMobile ? 0 : 4,
               paddingBottom: isMobile ? 20 : 0,
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <RankingBar
-              theme={theme}
-              hovered={hovered}
-              selected={selected}
-              onHover={setHovered}
-              onSelect={handleSelect}
-              onOpenAllPhotos={() => setPhotoCountry("ALL")}
-            />
+            {theme.isVisited ? (
+              <PhotoPanel
+                selectedCountry={selected}
+                themeColor={theme.color}
+              />
+            ) : (
+              <RankingBar
+                theme={theme}
+                hovered={hovered}
+                selected={selected}
+                onHover={setHovered}
+                onSelect={handleSelect}
+              />
+            )}
           </motion.div>
         </div>
       </div>
 
-      {/* Photo gallery modal */}
-      <PhotoModal
-        code={photoCountry}
-        onClose={() => setPhotoCountry(null)}
-        themeColor={theme.color}
-      />
     </div>
   );
 }

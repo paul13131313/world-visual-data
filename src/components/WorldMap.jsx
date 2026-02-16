@@ -199,8 +199,14 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
           </filter>
         </defs>
 
-        {/* Ocean background */}
-        <rect width={dimensions.width} height={dimensions.height} fill="#d8dbe2" />
+        {/* Ocean background — click to deselect */}
+        <rect
+          width={dimensions.width}
+          height={dimensions.height}
+          fill="#d8dbe2"
+          onClick={() => { onSelect(null); onHover(null); }}
+          style={{ cursor: "default" }}
+        />
 
         {/* Graticule */}
         <path
@@ -230,8 +236,12 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
           const isExtraVisited = isVisitedTheme && code && EXTRA_VISITED.has(code);
 
           let fill;
-          if (isExtraVisited) {
-            fill = lerpColor(theme.lo, theme.hi, 1.0 * entryProgress);
+          if (isVisitedTheme) {
+            // Visited theme: 2 colors only — blue for visited, gray for not
+            const isVisitedCountry = isExtraVisited || (countryData && val === 1);
+            fill = isVisitedCountry
+              ? lerpColor("#c8cad0", theme.color, entryProgress)  // animate from gray to blue
+              : "#c8cad0";
           } else if (countryData) {
             fill = lerpColor(theme.lo, theme.hi, t * entryProgress);
           } else {
@@ -353,10 +363,10 @@ export default function WorldMap({ theme, hovered, selected, onHover, onSelect, 
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: 14,
                 fontWeight: 700,
-                color: theme.color,
-                textShadow: `0 0 8px ${theme.color}40`,
+                color: (val === 1 || EXTRA_VISITED.has(hovered)) ? theme.color : "#666",
+                textShadow: (val === 1 || EXTRA_VISITED.has(hovered)) ? `0 0 8px ${theme.color}40` : "none",
               }}>
-                ✓ Visited
+                {(val === 1 || EXTRA_VISITED.has(hovered)) ? "✓ Visited" : "NOT YET"}
               </div>
             ) : (
               <div style={{
