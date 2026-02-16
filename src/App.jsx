@@ -41,6 +41,12 @@ export default function App() {
   };
 
   const handleSelect = (code) => {
+    // If photo modal is open, close it first on any click
+    if (photoCountry) {
+      setPhotoCountry(null);
+      setSelected(null);
+      return;
+    }
     const newCode = code === selected ? null : code;
     setSelected(newCode);
     // Open photo modal if visited theme and country has photos
@@ -197,15 +203,24 @@ export default function App() {
               flexWrap: isMobile ? "wrap" : "nowrap",
               gap: isMobile ? 4 : 0,
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontFamily: MONO, fontSize: 8, color: "#999", letterSpacing: "0.1em" }}>LOW</span>
-                <div style={{
-                  width: isMobile ? 50 : 80, height: 4, borderRadius: 2,
-                  background: `linear-gradient(90deg, ${theme.lo}, ${theme.color})`,
-                  boxShadow: `0 0 6px ${theme.color}20`, transition: "all 0.6s",
-                }} />
-                <span style={{ fontFamily: MONO, fontSize: 8, color: "#999", letterSpacing: "0.1em" }}>HIGH</span>
-              </div>
+              {theme.isVisited ? (
+                <span style={{
+                  fontFamily: MONO, fontSize: 9, color: "#999",
+                  letterSpacing: "0.05em", opacity: 0.7,
+                }}>
+                  Click a country to see photos
+                </span>
+              ) : (
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 8, color: "#999", letterSpacing: "0.1em" }}>LOW</span>
+                  <div style={{
+                    width: isMobile ? 50 : 80, height: 4, borderRadius: 2,
+                    background: `linear-gradient(90deg, ${theme.lo}, ${theme.color})`,
+                    boxShadow: `0 0 6px ${theme.color}20`, transition: "all 0.6s",
+                  }} />
+                  <span style={{ fontFamily: MONO, fontSize: 8, color: "#999", letterSpacing: "0.1em" }}>HIGH</span>
+                </div>
+              )}
               {activeCode && (
                 <DetailPanel code={activeCode} activeThemeIndex={themeIndex} theme={theme} inline />
               )}
