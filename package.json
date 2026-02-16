@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "thumbs": "node scripts/generate-thumbs.mjs",
+    "build": "node scripts/generate-thumbs.mjs && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

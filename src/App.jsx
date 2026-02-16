@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { THEMES } from "./data/themes";
+import { PHOTOS } from "./data/photos";
 import WorldMap from "./components/WorldMap";
 import ThemeSelector from "./components/ThemeSelector";
 import DetailPanel from "./components/DetailPanel";
 import RankingBar from "./components/RankingBar";
 import ParticlesBg from "./components/ParticlesBg";
+import PhotoModal from "./components/PhotoModal";
 
 const SERIF = "'Playfair Display', Georgia, 'Times New Roman', serif";
 const MONO = "'JetBrains Mono', 'SF Mono', 'Fira Code', 'Courier New', monospace";
@@ -16,6 +18,7 @@ export default function App() {
   const [selected, setSelected] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [photoCountry, setPhotoCountry] = useState(null);
 
   const theme = THEMES[themeIndex];
   const activeCode = selected || hovered;
@@ -34,6 +37,16 @@ export default function App() {
   const handleThemeChange = (index) => {
     setThemeIndex(index);
     setSelected(null);
+    setPhotoCountry(null);
+  };
+
+  const handleSelect = (code) => {
+    const newCode = code === selected ? null : code;
+    setSelected(newCode);
+    // Open photo modal if visited theme and country has photos
+    if (newCode && theme.isVisited && PHOTOS[newCode]?.length > 0) {
+      setPhotoCountry(newCode);
+    }
   };
 
   return (
@@ -167,7 +180,7 @@ export default function App() {
                 hovered={hovered}
                 selected={selected}
                 onHover={setHovered}
-                onSelect={setSelected}
+                onSelect={handleSelect}
                 isLoaded={isLoaded}
               />
             </div>
@@ -217,11 +230,19 @@ export default function App() {
               hovered={hovered}
               selected={selected}
               onHover={setHovered}
-              onSelect={setSelected}
+              onSelect={handleSelect}
+              onOpenAllPhotos={() => setPhotoCountry("ALL")}
             />
           </motion.div>
         </div>
       </div>
+
+      {/* Photo gallery modal */}
+      <PhotoModal
+        code={photoCountry}
+        onClose={() => setPhotoCountry(null)}
+        themeColor={theme.color}
+      />
     </div>
   );
 }

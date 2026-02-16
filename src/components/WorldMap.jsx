@@ -15,6 +15,7 @@ const EXTRA_VISITED = new Set([
   "AT", // オーストリア
   "TZ", // タンザニア
   "GT", // グアテマラ
+  "EE", // エストニア
 ]);
 
 // Names for countries not in COUNTRIES data (for tooltips)
@@ -28,6 +29,7 @@ const EXTRA_COUNTRY_NAMES = {
   AT: { name: "Austria", nameJa: "オーストリア" },
   TZ: { name: "Tanzania", nameJa: "タンザニア" },
   GT: { name: "Guatemala", nameJa: "グアテマラ" },
+  EE: { name: "Estonia", nameJa: "エストニア" },
 };
 
 // Known coordinates for small countries that are hard to find on the map

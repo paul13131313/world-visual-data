@@ -76,7 +76,7 @@ function CountUpNumber({ value, unit, color, isHovered, isVisitedTheme }) {
   );
 }
 
-export default function RankingBar({ theme, hovered, selected, onHover, onSelect }) {
+export default function RankingBar({ theme, hovered, selected, onHover, onSelect, onOpenAllPhotos }) {
   const { sorted, maxVal, isVisitedRanking } = useMemo(() => {
     if (theme.isVisited) {
       // Visited theme: show favorites ranking (hardcoded Top 10)
@@ -213,6 +213,32 @@ export default function RankingBar({ theme, hovered, selected, onHover, onSelect
           })}
         </AnimatePresence>
       </div>
+
+      {/* All Photos button for visited theme */}
+      {isVisitedRanking && onOpenAllPhotos && (
+        <button
+          onClick={onOpenAllPhotos}
+          style={{
+            marginTop: 14,
+            width: "100%",
+            padding: "8px 0",
+            background: "none",
+            border: `1px solid ${theme.color}30`,
+            borderRadius: 4,
+            color: theme.color,
+            fontFamily: MONO,
+            fontSize: 11,
+            letterSpacing: "0.08em",
+            cursor: "pointer",
+            transition: "all 0.3s",
+            opacity: 0.7,
+          }}
+          onMouseEnter={e => { e.target.style.opacity = "1"; e.target.style.borderColor = theme.color; }}
+          onMouseLeave={e => { e.target.style.opacity = "0.7"; e.target.style.borderColor = `${theme.color}30`; }}
+        >
+          All Photos →
+        </button>
+      )}
     </div>
   );
 }
