@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#1e2028"/>
+  <circle cx="32" cy="32" r="20" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.3"/>
+  <circle cx="32" cy="32" r="14" fill="none" stroke="#00d4ff" stroke-width="1" opacity="0.2"/>
+  <!-- Simplified continent shapes -->
+  <g fill="#00d4ff" opacity="0.85">
+    <!-- Americas -->
+    <ellipse cx="20" cy="28" rx="4" ry="6" transform="rotate(-10 20 28)"/>
+    <ellipse cx="22" cy="38" rx="3" ry="5" transform="rotate(5 22 38)"/>
+    <!-- Europe/Africa -->
+    <ellipse cx="34" cy="26" rx="3" ry="3"/>
+    <ellipse cx="35" cy="35" rx="3" ry="5"/>
+    <!-- Asia -->
+    <ellipse cx="44" cy="27" rx="5" ry="4" transform="rotate(-5 44 27)"/>
+    <!-- Australia -->
+    <ellipse cx="47" cy="39" rx="2.5" ry="2"/>
+  </g>
+  <!-- Data dot accent -->
+  <circle cx="44" cy="27" r="2" fill="#00ff88" opacity="0.9"/>
+  <circle cx="44" cy="27" r="2" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0.4">
+    <animate attributeName="r" from="2" to="6" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
