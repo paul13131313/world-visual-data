@@ -14,7 +14,7 @@ export const COUNTRY_SEVERITY = {
   UA: "war", RU: "war", SD: "war", MM: "war", PS: "war", IL: "war", IR: "war",
   // 武力紛争（オレンジ）
   SY: "armed", MX: "armed", NG: "armed", CD: "armed", ET: "armed", SO: "armed",
-  YE: "armed", PK: "armed", IN: "armed", CO: "armed", HT: "armed", EC: "armed", BR: "armed",
+  YE: "armed", PK: "armed", IN: "armed", CO: "armed", HT: "armed",
   // 低強度紛争（黄色）
   AF: "low", MZ: "low", BF: "low", ML: "low", TD: "low", CM: "low", IQ: "low", NE: "low", CF: "low",
 };
